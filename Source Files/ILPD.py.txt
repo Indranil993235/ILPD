@@ -1,0 +1,261 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+%matplotlib inline
+
+dataset = pd.read_csv('indian_liver_patient.csv')
+
+dataset.head()
+print(dataset)
+
+dataset.isnull().any()
+
+sns.countplot(data=dataset, x = 'Dataset', label='Count')
+LD, NLD = dataset['Dataset'].value_counts()
+print('Number of patients diagnosed with liver disease: ',LD)
+print('Number of patients not diagnosed with liver disease: ',NLD)
+
+
+sns.countplot(data=dataset, x = 'Gender', label='Count')
+M, F = dataset['Gender'].value_counts()
+print('Number of patients that are male: ',M)
+print('Number of patients that are female: ',F)
+
+
+sns.catplot(x="Age", y="Gender", hue="Dataset", data=dataset);
+
+g = sns.FacetGrid(dataset, col="Dataset", row="Gender", margin_titles=True)
+g.map(plt.hist, "Age", color="red")
+plt.subplots_adjust(top=0.9)
+g.fig.suptitle('Disease by Gender and Age')
+
+
+g = sns.FacetGrid(dataset, col="Gender", row="Dataset", margin_titles=True)
+g.map(plt.scatter,"Direct_Bilirubin", "Total_Bilirubin", edgecolor="w")
+plt.subplots_adjust(top=0.9)
+
+
+sns.jointplot("Total_Bilirubin", "Direct_Bilirubin", data=dataset, kind="reg")
+
+
+g = sns.FacetGrid(dataset, col="Gender", row="Dataset", margin_titles=True)
+g.map(plt.scatter,"Aspartate_Aminotransferase", "Alamine_Aminotransferase",  edgecolor="w")
+plt.subplots_adjust(top=0.9)
+
+
+sns.jointplot("Aspartate_Aminotransferase", "Alamine_Aminotransferase", data=dataset, kind="reg")
+
+
+g = sns.FacetGrid(dataset, col="Gender", row="Dataset", margin_titles=True)
+g.map(plt.scatter,"Alkaline_Phosphotase", "Alamine_Aminotransferase",  edgecolor="w")
+plt.subplots_adjust(top=0.9)
+
+
+sns.jointplot("Alkaline_Phosphotase", "Alamine_Aminotransferase", data=dataset, kind="reg")
+
+
+
+g = sns.FacetGrid(dataset, col="Gender", row="Dataset", margin_titles=True)
+g.map(plt.scatter,"Total_Protiens", "Albumin",  edgecolor="w")
+plt.subplots_adjust(top=0.9)
+
+
+
+sns.jointplot("Total_Protiens", "Albumin", data=dataset, kind="reg")
+
+
+g = sns.FacetGrid(dataset, col="Gender", row="Dataset", margin_titles=True)
+g.map(plt.scatter,"Albumin", "Albumin_and_Globulin_Ratio",  edgecolor="w")
+plt.subplots_adjust(top=0.9)
+
+
+sns.jointplot("Albumin_and_Globulin_Ratio", "Albumin", data=dataset, kind="reg")
+
+
+
+g = sns.FacetGrid(dataset, col="Gender", row="Dataset", margin_titles=True)
+g.map(plt.scatter,"Albumin_and_Globulin_Ratio", "Total_Protiens",  edgecolor="w")
+plt.subplots_adjust(top=0.9)
+
+
+
+nan_rows=dataset[dataset['Albumin_and_Globulin_Ratio'].isnull()]
+print(nan_rows)
+
+
+dataset['Dataset'].value_counts()
+
+
+dataset=dataset.dropna()
+
+
+dataset.isnull().any()
+
+
+dataset.shape
+
+
+
+x=dataset.iloc[:,0:10]
+x.head()
+
+
+y=dataset.iloc[:,10]
+y.head()
+
+
+x.Gender=x.Gender.map( {'Male':0, 'Female':1} )
+
+
+x.head()
+
+
+liver_corr = x.corr()
+
+
+
+liver_corr
+
+
+
+plt.figure(figsize=(30, 30))
+sns.heatmap(liver_corr, cbar = True,  square = True, annot=True, fmt= '.2f',annot_kws={'size': 15},
+           cmap= 'coolwarm')
+plt.title('Correlation between features');
+
+
+
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.30)
+
+
+
+from sklearn.preprocessing import StandardScaler
+scaler=StandardScaler()
+scaler.fit(x_train)
+x_train=scaler.transform(x_train)
+x_test=scaler.transform(x_test)
+
+
+
+
+x
+
+
+
+y
+
+
+
+KNeighborsClassifier
+
+
+from sklearn.neighbors import KNeighborsClassifier 
+knn = KNeighborsClassifier(n_neighbors=1)                       
+knn.fit(x_train,y_train)
+y_pred=knn.predict(x_test)
+from sklearn.metrics import accuracy_score
+print(accuracy_score(y_test,y_pred))
+
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test,y_pred)
+
+
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred))
+
+
+
+Perceptron
+
+from sklearn.linear_model import Perceptron
+clf2=Perceptron()
+clf2.fit(x_train,y_train)
+print('Accuracy:',accuracy_score(clf2.predict(x_test),y_test))
+
+
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test,y_pred)
+
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred))
+
+
+Random forest classifier
+
+from sklearn.ensemble import RandomForestClassifier
+clf3=RandomForestClassifier()
+clf3.fit(x_train,y_train)
+print('Accuracy:',accuracy_score(clf3.predict(x_test),y_test))
+
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test,y_pred)
+
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred))
+
+
+
+Support vector machine
+
+from sklearn.svm import SVC
+svc=SVC()                                
+svc.fit(x_train,y_train)
+y_pred2=svc.predict(x_test)
+print(accuracy_score(y_test,y_pred2))
+
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test,y_pred)
+
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred))
+
+
+Naive-bayes
+
+from sklearn.naive_bayes import GaussianNB
+gnb=GaussianNB()                               
+gnb.fit(x_train,y_train)
+print(accuracy_score(y_test,y_pred))
+
+
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test,y_pred)
+
+
+from sklearn.metrics import classification_report
+print(classification_report(y_test,y_pred))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
